@@ -38,7 +38,7 @@ Dylan is a student at Southern Methodist University studying a masters in Data S
 
 </ul>
 
-<br><b> Feel free to check out my other tabs. They will contain the other projects I have worked on.</br>
+<br><b> Feel free to check out my other tabs. They will contain the other projects I have worked on.</br></b>
 
 </div>
 <div id="dvinfo" style="display: none">
