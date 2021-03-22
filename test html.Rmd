@@ -1,0 +1,30 @@
+---
+title: "Untitled"
+author: "Dylan Scott"
+date: "3/21/2021"
+output: html_document
+---
+<script type="text/javascript">
+    function ShowHideDiv() {
+        var studentdisplay = document.getElementById("studentdisplay");
+        var dylaninfo = document.getElementById("dylaninfo");
+        dylaninfo.style.display = studentdisplay.value == "dylan" ? "block" : "none";
+        dvinfo.style.display = studentdisplay.value == "dv" ? "block" : "none";
+
+    }
+</script>
+<label for="student">Choose Your Character:</label>
+
+</select>
+    <select id = "studentdisplay" onchange = "ShowHideDiv()">
+        <option value="blank"> </option>
+        <option value="dylan">Dylan Scott</option>
+        <option value="dv">Darth Vader</option>            
+    </select>
+<hr />
+<div id="dylaninfo" style="display: none">
+this should show my info
+</div>
+<div id="dvinfo" style="display: none">
+this should show my info on no
+</div>
