@@ -261,12 +261,12 @@ confusionMatrix(table(test$General_Style,classifications))
 
 ```
 
-# This is the code Dylan used to answer qustion 9
+### This is the code Dylan used to answer qustion 9
 
-# 9. Knock their socks off!  Find one other useful inference from the data that you feel Budweiser may be able to find value in.  You must convince them why it is important and back up your conviction with appropriate statistical evidence
-# is one state more likly to purchase local? Where is there a gap in that states beer?
+### 9. Knock their socks off!  Find one other useful inference from the data that you feel Budweiser may be able to find value in.  You must convince them why it is important and back up your conviction with appropriate statistical evidence
+### is one state more likly to purchase local? Where is there a gap in that states beer?
 
-# This is using data from another study which can be found on the github and is cited in the slides
+### This is using data from another study which can be found on the github and is cited in the slides
 
 Overall Maine had the best chance for a successful booze stout by having a high ABV average but a middle of the road ABV max
 
