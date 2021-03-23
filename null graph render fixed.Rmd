@@ -77,7 +77,7 @@ ui <- fluidPage(
 )
 # Define server logic to read selected file ----
 server <- function(input, output) {
-  brew_data <- read.csv("https://raw.githubusercontent.com/scottdyl/MSDS6306_CastStudy1/main/data/Breweries.csv")
+  brew_data <- read.csv("data/Breweries.csv")
   brew_data$State <- str_replace_all(brew_data$State, "(\\s+)", "")
   
   
