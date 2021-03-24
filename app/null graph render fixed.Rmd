@@ -1,0 +1,229 @@
+---
+title: "beer time"
+author: "Dylan Scott"
+date: "3/22/2021"
+output: html_document
+---
+```{R}
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(class)
+library(caret)
+library(e1071)
+library(shiny)
+
+
+# Define server logic to read selected file ----
+server <- function(input, output) {
+  brewery_reactive <- reactive({read.csv("data/Breweries.csv")})
+  output$brew_data <- renderDataTable(brewery_reactive)
+  brew_data$State <- str_replace_all(brew_data$State, "(\\s+)", "")
+  
+  
+  # Joined Datasets Dataframe Output
+  output$contents <- renderDataTable(
+    {
+            call.me = beer_brew()
+    })
+  
+    beer_brew <- reactive({
+      inputFile <- input$beersInput
+      # Don't store anything if input file is null and useDefaultBeers is false
+      if(is.null(inputFile)) return(NULL)
+
+      else {
+      beers <- read.csv(inputFile$datapath)
+      }
+      # Perform merge by Brewer_id and Brew_ID
+      beerAndBreweries = merge(beers, brew_data, by.x="Brewery_id", by.y="Brew_ID")
+      colnames(beerAndBreweries)[2] = "Beer_Name"
+      colnames(beerAndBreweries)[8] = "Brewery_Name"
+      
+      # Return the joined dataset
+      return(beerAndBreweries)
+    }
+  )
+  
+  
+    output$stateabv <-renderPlot({
+     abvplot() 
+    })
+      
+    abvplot <- reactive({
+      inputFile <- input$beersInput
+      
+      if(input$plot=='hist'& !is.null(inputFile)) {
+      return(      
+      beer_brew()%>%
+      drop_na(IBU, ABV)%>%
+      group_by(State) %>%
+      summarise(median_ABV = median(ABV)) %>%
+      ggplot(aes(State,median_ABV,fill = median_ABV)) +
+      geom_bar(stat = 'identity',width = .75,color = 'black')+
+      scale_fill_gradient(low = 'yellow', high = 'red') +
+      labs(title="Median ABV by State", x="State", y="Median ABV")+
+      theme(axis.text.x = element_text(angle = 90, vjust = .3)))
+    }
+    else if(input$plot=='box'& !is.null(inputFile)) {
+      return(      
+      beer_brew()%>%
+      drop_na(IBU, ABV)%>%
+      group_by(State) %>%
+      ggplot(aes(State,ABV))+
+      geom_boxplot())
+    }
+     else return(NULL) 
+
+    
+  })
+      
+
+ 
+    output$stateibu <-renderPlot({
+      ibuplot()
+    })
+        
+    ibuplot <- reactive({
+      inputFile <- input$beersInput
+      
+      if(input$plot=='hist'& !is.null(inputFile)) {
+      return(      
+      beer_brew()%>%
+      drop_na(IBU, ABV)%>%
+      group_by(State) %>%
+      summarise(median_IBU = median(IBU)) %>%
+      ggplot(aes(State,median_IBU,fill = median_IBU)) +
+      geom_bar(stat = 'identity',width = .75,color = 'black')+
+      scale_fill_gradient(low = 'yellow', high = 'red') +
+      labs(title="Median IBU by State", x="State", y="Median IBU")+
+      theme(axis.text.x = element_text(angle = 90, vjust = .3)))
+    }
+    else if(input$plot=='box'& !is.null(inputFile)) {
+      return(      
+      beer_brew()%>%
+      drop_na(IBU, ABV)%>%
+      group_by(State) %>%
+      ggplot(aes(State,IBU))+
+      geom_boxplot())
+    }
+    else return(NULL)
+    
+  })
+     
+  output$scatter <- renderPlot({
+    abvibuscatter()
+  })
+        
+    abvibuscatter <- reactive({
+      inputFile <- input$beersInput
+    
+    if(input$regress==T& !is.null(inputFile)) {
+      return(  
+        beer_brew() %>%
+  drop_na(IBU, ABV)%>%
+  ggplot(aes(ABV, IBU)) +
+  geom_jitter(width = .01) +
+  geom_smooth(method = 'lm', se = F, color = 'red')+
+  labs(title="Bitterness vs Alcohol", x="Alcohol Content by Volume", y="IBU"))
+    }
+    else if(input$regress==F& !is.null(inputFile)) {
+      return(  
+        beer_brew() %>%
+  drop_na(IBU, ABV)%>%
+  ggplot(aes(ABV, IBU)) +
+  geom_jitter(width = .01) +
+#  geom_smooth(method = 'lm', se = F, color = 'red')+
+  labs(title="Bitterness vs Alcohol", x="Alcohol Content by Volume", y="IBU"))
+    }
+  else return(NULL)
+
+    
+  })
+  
+  
+output$dist <- renderPlot({
+  distrobution()
+})
+
+
+  distrobution<- reactive({
+  inputFile <- input$beersInput
+  
+  if(!is.null(inputFile)) {
+    return(
+  beer_brew() %>%
+  drop_na(IBU, ABV)%>%
+  ggplot(aes(ABV)) +
+  geom_histogram(fill ='black', binwidth = .0025, color = 'white') +
+  labs(title="Distribution of ABV"))
+  }
+  else return(NULL)
+  
+})
+    
+}
+# Define UI for data upload app ----
+ui <- fluidPage(
+
+  # App title ----
+  titlePanel("Beer-Time Analysis"),
+
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Select a file ----
+      fileInput("beersInput", "Choose CSV File",
+                multiple = TRUE,
+                accept = c("text/csv",
+                         "text/comma-separated-values,text/plain",
+                         ".csv")),
+      # Horizontal line ----
+      tags$hr(),
+
+      
+      selectInput("state","Select a State",choices = sort(brew_data$State)),
+      checkboxInput("regress", "Show Regression Line", F),
+      # Input: Select separator ----
+      radioButtons("sep", "Separator",
+                   choices = c(Comma = ",",
+                               Semicolon = ";",
+                               Tab = "\t"),
+
+                   selected = ","),
+      radioButtons("plot", "Plot Options",
+                   choices = c(Histogram = 'hist',
+                               Boxplot = 'box'),
+                   selected = "hist"),
+
+      # Horizontal line ----
+      tags$hr(),
+
+    ),
+
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      # Output: Data file ----
+      # Output: Tabset w/ plot, summary, and table ----
+      tabsetPanel(type = "tabs",
+                  tabPanel("Table", dataTableOutput("contents")),
+                  tabPanel("ABV Plot", plotOutput("stateabv")),
+                  tabPanel('IBU Plot',plotOutput("stateibu")),
+                  tabPanel('IBU V. ABV',plotOutput('scatter')),
+                  tabPanel('ABV Distrobution',plotOutput('dist'))
+
+
+    )
+
+  )
+)
+)
+# Run the app ----
+shinyApp(ui, server)
+
+```
