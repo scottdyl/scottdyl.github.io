@@ -3,9 +3,9 @@ navbar:
   title: "My Portforlio"
   left:
   - text: "Backstory"
-    href: CaseStudy2DDS.html
-  - text: "Case Study 2"
     href: index.html
+  - text: "Case Study 2"
+    href: CaseStudy2DDS.html
   - text: "Beer Case Study"
     href: Beer_Case_Study_1_Final.html
 
