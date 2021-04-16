@@ -4,7 +4,8 @@ navbar:
   left:
   - text: "Backstory"
     href: index.html
-  - text: "Beer Case Study"
-    href: Beer_Case_Study_1_Final.html
   - text: "Case Study 2"
     href: CaseStudy2DDS.html
+  - text: "Beer Case Study"
+    href: Beer_Case_Study_1_Final.html
+
